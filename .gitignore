@@ -1,0 +1,9 @@
+*.lock.json
+.vs/
+.localhistory/
+*.xproj.user
+Unit_Test_Coverage_Report.xml
+UnitTestCoverage_Report/
+bin/
+obj/
+*/launchSettings.json
