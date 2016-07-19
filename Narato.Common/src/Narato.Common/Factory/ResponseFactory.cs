@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Narato.Common.Exceptions;
 using Narato.Common.Interfaces;
+using System.Net;
 
 namespace Narato.Common.Factory
 {
@@ -26,17 +27,17 @@ namespace Narato.Common.Factory
         //}
 
         public IActionResult CreateGetResponse<T>(Func<T> callback, string absolutePath)
-            {
-                var feedback = new List<FeedbackItem>();
-                T returnData = default(T);
+        {
+            var feedback = new List<FeedbackItem>();
+            T returnData = default(T);
 
-                try
-                {
-                    returnData = _exceptionHandler.PrettifyExceptions<T>(callback);
+            try
+            {
+                returnData = _exceptionHandler.PrettifyExceptions<T>(callback);
                 if (returnData != null)
                     return new ObjectResult(new Response<T>(returnData, absolutePath));
-                return new NotFoundObjectResult(new Response<T>(new FeedbackItem() { Description="The object was not found", Type=FeedbackType.Info}, absolutePath));
-                }
+                return new NotFoundObjectResult(new Response<T>(new FeedbackItem() { Description = "The object was not found", Type = FeedbackType.Info }, absolutePath));
+            }
             //catch (ValidatorException ve)
             //{
             ////_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, ve));
@@ -68,11 +69,11 @@ namespace Narato.Common.Factory
                 return new BadRequestObjectResult(response);
             }
             catch (Exception e)
-                {
-                    var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.ValidationError }, absolutePath);
-                    return new BadRequestObjectResult(response);
-                }
+            {
+                var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.ValidationError }, absolutePath);
+                return new BadRequestObjectResult(response);
             }
+        }
 
         public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, object routeValues)
         {
@@ -117,6 +118,39 @@ namespace Narato.Common.Factory
             {
                 var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.ValidationError }, absolutePath);
                 return new BadRequestObjectResult(response);
+            }
+        }
+
+        public IActionResult CreateDeleteResponse(Func<bool> callback, string absolutePath)
+        {
+            var feedback = new List<FeedbackItem>();
+            try
+            {
+                if(callback())
+                {
+                    return new OkObjectResult("The object was deleted succesfully");
+                }
+                else
+                {
+                    var feedbackItems = new List<FeedbackItem>();
+                    feedbackItems.Add(new FeedbackItem { Description = "Tenant could not be found by the given key", Type = FeedbackType.Warning });
+                    return new BadRequestObjectResult(new Response(feedbackItems));
+                }
+            }
+            catch (UnauthorizedAccessException e)   
+            {
+                return new UnauthorizedResult();
+            }
+            catch (ExceptionWithFeedback e)
+            {
+                var response = new Response(e.Feedback);
+                return new BadRequestObjectResult(response);
+            }
+            catch (Exception e)
+            {
+                var feedbackItems = new List<FeedbackItem>();
+                feedbackItems.Add(new FeedbackItem { Description = e.Message, Type = FeedbackType.Warning });
+                return new BadRequestObjectResult(new Response(feedbackItems));
             }
         }
 
