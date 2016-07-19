@@ -126,9 +126,9 @@ namespace Narato.Common.Factory
             var feedback = new List<FeedbackItem>();
             try
             {
-                if(callback())
+                if (callback())
                 {
-                    return new OkObjectResult("The object was deleted succesfully");
+                    return new NoContentResult();
                 }
                 else
                 {
