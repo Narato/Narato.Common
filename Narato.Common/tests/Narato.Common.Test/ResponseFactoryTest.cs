@@ -5,6 +5,7 @@ using Narato.Common.Factory;
 using Narato.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using Xunit;
 
 namespace Digipolis.FormEngine.Common.Test
@@ -42,10 +43,9 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void GetResponseReturnsUnauthorizedResultOnUnauthorizedAccessExceptio()
+        public void GetResponseReturnsUnauthorizedResultOnUnauthorizedAccessException()
         {
             Func<Response> func = () => { throw new UnauthorizedAccessException(); };
-
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
@@ -109,7 +109,6 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void PostResponseReturnsCreatedAtRouteResult()
         {
-
             var response = It.IsAny<Response>();
             Func<Response> func = () => { return It.IsAny<Response>(); };
             var exceptionHandler = new ExceptionHandler();
@@ -174,7 +173,7 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void MissingParametersReturnsBadRequest()
         {
-             var exceptionHandler = new ExceptionHandler();
+            var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
             var badRequest = responseFactory.CreateMissingParam(new List<MissingParam>() { new MissingParam("missing", MissingParamType.QuerystringParam) });
 
@@ -188,6 +187,71 @@ namespace Digipolis.FormEngine.Common.Test
             var response = new Response<object>();
 
             Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void DeleteResponse_ReturnsNoContentResult_OnDeletedSuccess()
+        {
+            Func<bool> func = () => { return true; };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(NoContentResult), objectResult);
+        }
+
+        [Fact]
+        public void DeleteResponse_ReturnsBadRequest_OnDeletedFailed()
+        {
+            Func<bool> func = () => { return false; };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(BadRequestObjectResult), objectResult);
+        }
+
+        [Fact]
+        public void DeleteResponse_ReturnsUnauthorizedResult_OnUnauthorizedAccessException()
+        {
+            Func<bool> func = () => { throw new UnauthorizedAccessException(); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(UnauthorizedResult), objectResult);
+        }
+
+        [Fact]
+        public void DeleteResponse_ReturnsBadRequest_OnExceptionWithFeedback()
+        {
+            Func<bool> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(BadRequestObjectResult), objectResult);
+        }
+
+        [Fact]
+        public void DeleteResponse_ReturnsBadRequest_OnException()
+        {
+            Func<bool> func = () => { throw new Exception(); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(BadRequestObjectResult), objectResult);
         }
     }
 }
