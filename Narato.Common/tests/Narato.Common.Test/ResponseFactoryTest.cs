@@ -56,6 +56,45 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
+        public void GetResponseReturnsNotFoundOnEntityNotFoundException()
+        {
+            Func<Response> func = () => { throw new EntityNotFoundException(); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var notFoundResult = responseFactory.CreateGetResponse(func, string.Empty);
+
+            Assert.NotNull(notFoundResult);
+            Assert.IsType(typeof(NotFoundResult), notFoundResult);
+        }
+
+        [Fact]
+        public void GetResponseReturnsNotFoundOnEntityNotFoundExceptionWithMessage()
+        {
+            Func<Response> func = () => { throw new EntityNotFoundException("test"); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var notFoundResult = responseFactory.CreateGetResponse(func, string.Empty);
+
+            Assert.NotNull(notFoundResult);
+            Assert.IsType(typeof(NotFoundObjectResult), notFoundResult);
+        }
+
+        [Fact]
+        public void GetResponseReturnsNotFoundOnExceptionWithFeedback()
+        {
+            Func<Response> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var badRequestResult = responseFactory.CreateGetResponse(func, string.Empty);
+
+            Assert.NotNull(badRequestResult);
+            Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+        }
+
+        [Fact]
         public void GetResponseReturnsNotFondResultWhenManagerReturnsNull()
         {
             Func<Response> func = () => { return null; };
@@ -82,6 +121,7 @@ namespace Digipolis.FormEngine.Common.Test
             Assert.NotNull(objectResult);
         }
 
+
         [Fact]
         public void GetResponseForCollectionReturnsBadRequestResultOnException()
         {
@@ -92,6 +132,42 @@ namespace Digipolis.FormEngine.Common.Test
 
             Assert.NotNull(badRequestResult);
             Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+        }
+
+        [Fact]
+        public void GetResponseForCollectionReturnsNotFoundOnExceptionWithFeedback()
+        {
+            Func<List<Response>> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
+
+            Assert.NotNull(badRequestResult);
+            Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+        }
+
+        [Fact]
+        public void GetResponseForCollectionReturnsNotFoundAtEntityNotFoundException()
+        {
+            Func<List<Response>> func = () => { throw new EntityNotFoundException(); };
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var notFoundResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
+
+            Assert.NotNull(notFoundResult);
+            Assert.IsType(typeof(NotFoundResult), notFoundResult);
+        }
+
+        [Fact]
+        public void GetResponseForCollectionReturnsNotFoundAtEntityNotFoundExceptionWithMessage()
+        {
+            Func<List<Response>> func = () => { throw new EntityNotFoundException("test"); };
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var notFoundResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
+
+            Assert.NotNull(notFoundResult);
+            Assert.IsType(typeof(NotFoundObjectResult), notFoundResult);
         }
 
         [Fact]
@@ -115,7 +191,7 @@ namespace Digipolis.FormEngine.Common.Test
 
             var responseFactory = new ResponseFactory(exceptionHandler);
 
-            var createdAtRouteReesult = responseFactory.CreatePostResponse<Response>(func , string.Empty, string.Empty, string.Empty);
+            var createdAtRouteReesult = responseFactory.CreatePostResponse(func , string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(createdAtRouteReesult);
             Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteReesult);
@@ -128,10 +204,49 @@ namespace Digipolis.FormEngine.Common.Test
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var badRequest = responseFactory.CreatePostResponse<Response>(func, string.Empty, string.Empty, string.Empty);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
             Assert.IsType(typeof(BadRequestObjectResult), badRequest);
+        }
+
+        [Fact]
+        public void PostResponseReturnsBadRequestAtExceptionWithFeedback()
+        {
+            Func<Response> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+
+            Assert.NotNull(badRequest);
+            Assert.IsType(typeof(BadRequestObjectResult), badRequest);
+        }
+
+        [Fact]
+        public void PostResponseReturnsNotFoundAtEntityNotFoundException()
+        {
+            Func<Response> func = () => { throw new EntityNotFoundException(); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+
+            Assert.NotNull(badRequest);
+            Assert.IsType(typeof(NotFoundResult), badRequest);
+        }
+
+        [Fact]
+        public void PostResponseReturnsNotFoundAtEntityNotFoundExceptionWithMessage()
+        {
+            Func<Response> func = () => { throw new EntityNotFoundException("test"); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+
+            Assert.NotNull(badRequest);
+            Assert.IsType(typeof(NotFoundObjectResult), badRequest);
         }
 
         [Fact]
@@ -141,7 +256,7 @@ namespace Digipolis.FormEngine.Common.Test
             var exceptionHandler = new ExceptionHandler();
 
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var unauthorized = responseFactory.CreatePostResponse<Response>(func , string.Empty, string.Empty, string.Empty);
+            var unauthorized = responseFactory.CreatePostResponse(func , string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(unauthorized);
             Assert.IsType(typeof(UnauthorizedResult), unauthorized);
@@ -190,68 +305,81 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void DeleteResponse_ReturnsNoContentResult_OnDeletedSuccess()
+        public void DeleteResponseReturnsNoContentResultOnDeletedSuccess()
         {
-            Func<bool> func = () => { return true; };
+            Action action = () => { };
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+            var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
             Assert.IsType(typeof(NoContentResult), objectResult);
         }
 
         [Fact]
-        public void DeleteResponse_ReturnsBadRequest_OnDeletedFailed()
+        public void DeleteResponseReturnsBadRequestOnException()
         {
-            Func<bool> func = () => { return false; };
+            Action action = () => { throw new Exception(); };
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+            var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
             Assert.IsType(typeof(BadRequestObjectResult), objectResult);
         }
 
         [Fact]
-        public void DeleteResponse_ReturnsUnauthorizedResult_OnUnauthorizedAccessException()
+        public void DeleteResponseReturnsUnauthorizedResultOnUnauthorizedAccessException()
         {
-            Func<bool> func = () => { throw new UnauthorizedAccessException(); };
+            Action action = () => { throw new UnauthorizedAccessException(); };
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+            var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
             Assert.IsType(typeof(UnauthorizedResult), objectResult);
         }
 
         [Fact]
-        public void DeleteResponse_ReturnsBadRequest_OnExceptionWithFeedback()
+        public void DeleteResponseReturnsBadRequestOnExceptionWithFeedback()
         {
-            Func<bool> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
+            Action action = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+            var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
             Assert.IsType(typeof(BadRequestObjectResult), objectResult);
         }
 
         [Fact]
-        public void DeleteResponse_ReturnsBadRequest_OnException()
+        public void DeleteResponseReturnsNotFoundOnEntityNotFoundException()
         {
-            Func<bool> func = () => { throw new Exception(); };
+            Action action = () => { throw new EntityNotFoundException(); };
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
-            var objectResult = responseFactory.CreateDeleteResponse(func, string.Empty);
+            var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
-            Assert.IsType(typeof(BadRequestObjectResult), objectResult);
+            Assert.IsType(typeof(NotFoundResult), objectResult);
+        }
+
+        [Fact]
+        public void DeleteResponseReturnsNotFoundOnEntityNotFoundExceptionWithMessage()
+        {
+            Action action = () => { throw new EntityNotFoundException("test"); };
+
+            var exceptionHandler = new ExceptionHandler();
+            var responseFactory = new ResponseFactory(exceptionHandler);
+            var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
+
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(NotFoundObjectResult), objectResult);
         }
     }
 }

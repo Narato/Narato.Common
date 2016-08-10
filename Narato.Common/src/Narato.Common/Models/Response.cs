@@ -16,6 +16,8 @@
             Feedback = feedbackItems;
         }
 
+        public Response(FeedbackItem feedbackItem) : this(new List<FeedbackItem>() { feedbackItem }) { }
+
         public string Self { get; set; }
 
         [JsonProperty("skip", DefaultValueHandling = DefaultValueHandling.Ignore)]

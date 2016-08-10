@@ -52,13 +52,16 @@ namespace Narato.Common.Factory
             //};
             //feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError });
             //}
-            //catch (EntityNotFoundException enfe)
-            //{
-            //    //_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, enfe));
-            //    //_ailogger.Error(enfe.Message, enfe);
-            //    statusCode = HttpStatusCode.NotFound;
-            //    feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.NotFound, Description = enfe.Message, Type = FeedbackType.Warning });
-            //}
+            catch (EntityNotFoundException e)
+            {
+                if (! e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new NotFoundObjectResult(response);
+            }
             catch (UnauthorizedAccessException e)
             {
                 return new UnauthorizedResult();
@@ -98,13 +101,16 @@ namespace Narato.Common.Factory
             //};
             //feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError });
             //}
-            //catch (EntityNotFoundException enfe)
-            //{
-            //    //_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, enfe));
-            //    //_ailogger.Error(enfe.Message, enfe);
-            //    statusCode = HttpStatusCode.NotFound;
-            //    feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.NotFound, Description = enfe.Message, Type = FeedbackType.Warning });
-            //}
+            catch (EntityNotFoundException e)
+            {
+                if (! e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new NotFoundObjectResult(response);
+            }
             catch (UnauthorizedAccessException e)
             {
                 return new UnauthorizedResult();
@@ -121,25 +127,26 @@ namespace Narato.Common.Factory
             }
         }
 
-        public IActionResult CreateDeleteResponse(Func<bool> callback, string absolutePath)
+        public IActionResult CreateDeleteResponse(Action callback, string absolutePath)
         {
             var feedback = new List<FeedbackItem>();
             try
             {
-                if (callback())
-                {
-                    return new NoContentResult();
-                }
-                else
-                {
-                    var feedbackItems = new List<FeedbackItem>();
-                    feedbackItems.Add(new FeedbackItem { Description = "Tenant could not be found by the given key", Type = FeedbackType.Warning });
-                    return new BadRequestObjectResult(new Response(feedbackItems));
-                }
+                callback();
+                return new NoContentResult();
             }
-            catch (UnauthorizedAccessException e)   
+            catch (UnauthorizedAccessException)   
             {
                 return new UnauthorizedResult();
+            }
+            catch (EntityNotFoundException e)
+            {
+                if (! e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error });
+                return new NotFoundObjectResult(response);
             }
             catch (ExceptionWithFeedback e)
             {
@@ -178,13 +185,16 @@ namespace Narato.Common.Factory
             //};
             //feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError });
             //}
-            //catch (EntityNotFoundException enfe)
-            //{
-            //    //_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, enfe));
-            //    //_ailogger.Error(enfe.Message, enfe);
-            //    statusCode = HttpStatusCode.NotFound;
-            //    feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.NotFound, Description = enfe.Message, Type = FeedbackType.Warning });
-            //}
+            catch (EntityNotFoundException e)
+            {
+                if (! e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new NotFoundObjectResult(response);
+            }
             catch (UnauthorizedAccessException e)
             {
                 return new UnauthorizedResult();
