@@ -13,5 +13,6 @@ namespace Narato.Common.Factory
         IActionResult CreateDeleteResponse(Action callback, string absolutePath);
         IActionResult CreateMissingParam(MissingParam missingParam);
         IActionResult CreateMissingParam(List<MissingParam> missingParams);
+        IActionResult CreatePutResponse<T>(Func<T> callback, string absolutePath);
     }
 }
