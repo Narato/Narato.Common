@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Narato.Common.Exceptions;
 using Narato.Common.Interfaces;
 using System.Net;
+using System.Reflection;
+using Narato.Common.ActionResult;
 
 namespace Narato.Common.Factory
 {
@@ -38,20 +40,11 @@ namespace Narato.Common.Factory
                     return new ObjectResult(new Response<T>(returnData, absolutePath));
                 return new NotFoundObjectResult(new Response<T>(new FeedbackItem() { Description = "The object was not found", Type = FeedbackType.Info }, absolutePath));
             }
-            //catch (ValidatorException ve)
-            //{
-            ////_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, ve));
-            ////_ailogger.Error("Validation didn't pass", ve);
-            ////statusCode = HttpStatusCode.BadRequest;
-            //return new Response<T>
-            //{
-            //    Feedback = new List<FeedbackItem>() { new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError } },
-            //    Self = absolutePath,
-            //    Data = returnData,
-            //    StatusCode = statusCode
-            //};
-            //feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError });
-            //}
+            catch (ValidationException e)
+            {
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new BadRequestObjectResult(response);
+            }
             catch (EntityNotFoundException e)
             {
                 if (! e.MessageSet)
@@ -69,38 +62,42 @@ namespace Narato.Common.Factory
             catch (ExceptionWithFeedback e)
             {
                 var response = new Response<T>(e.Feedback, absolutePath);
-                return new BadRequestObjectResult(response);
+                return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
-                var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.ValidationError }, absolutePath);
-                return new BadRequestObjectResult(response);
+                var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new InternalServerErrorWithResponse(response);
             }
         }
 
-        public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, object routeValues)
+        public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs = null)
         {
             var feedback = new List<FeedbackItem>();
 
             try
             {
                 var returndata = _exceptionHandler.PrettifyExceptions<T>(callback);
+
+                if (routeValueIdentifierPairs != null)
+                {
+                    routeValueIdentifierPairs.ForEach(x =>
+                    {
+                        var propertyInfo = returndata.GetType().GetProperty(x.ModelIdentifier);
+                        var modelIdentiefer = propertyInfo.GetValue(returndata);
+
+                        var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
+                        routePropertyInfo.SetValue(routeValues, modelIdentiefer);
+                    });
+                }
+
                 return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath));
             }
-            //catch (ValidatorException ve)
-            //{
-            ////_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, ve));
-            ////_ailogger.Error("Validation didn't pass", ve);
-            ////statusCode = HttpStatusCode.BadRequest;
-            //return new Response<T>
-            //{
-            //    Feedback = new List<FeedbackItem>() { new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError } },
-            //    Self = absolutePath,
-            //    Data = returnData,
-            //    StatusCode = statusCode
-            //};
-            //feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError });
-            //}
+            catch (ValidationException e)
+            {
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new BadRequestObjectResult(response);
+            }
             catch (EntityNotFoundException e)
             {
                 if (! e.MessageSet)
@@ -118,12 +115,52 @@ namespace Narato.Common.Factory
             catch (ExceptionWithFeedback e)
             {
                 var response = new Response<T>(e.Feedback, absolutePath);
-                return new BadRequestObjectResult(response);
+                return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.ValidationError }, absolutePath);
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new InternalServerErrorWithResponse(response);
+            }
+        }
+
+        public IActionResult CreatePutResponse<T>(Func<T> callback, string absolutePath)
+        {
+            var feedback = new List<FeedbackItem>();
+
+            try
+            {
+                var returndata = _exceptionHandler.PrettifyExceptions<T>(callback);
+                return new OkObjectResult(new Response<T>(returndata, absolutePath));
+            }
+            catch (ValidationException e)
+            {
+                var response = new Response<T>(e.Feedback, absolutePath);
                 return new BadRequestObjectResult(response);
+            }
+            catch (EntityNotFoundException e)
+            {
+                if (!e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new NotFoundObjectResult(response);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return new UnauthorizedResult();
+            }
+            catch (ExceptionWithFeedback e)
+            {
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new InternalServerErrorWithResponse(response);
+            }
+            catch (Exception e)
+            {
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new InternalServerErrorWithResponse(response);
             }
         }
 
@@ -139,6 +176,11 @@ namespace Narato.Common.Factory
             {
                 return new UnauthorizedResult();
             }
+            catch (ValidationException e)
+            {
+                var response = new Response(e.Feedback);
+                return new BadRequestObjectResult(response);
+            }
             catch (EntityNotFoundException e)
             {
                 if (! e.MessageSet)
@@ -151,13 +193,12 @@ namespace Narato.Common.Factory
             catch (ExceptionWithFeedback e)
             {
                 var response = new Response(e.Feedback);
-                return new BadRequestObjectResult(response);
+                return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
-                var feedbackItems = new List<FeedbackItem>();
-                feedbackItems.Add(new FeedbackItem { Description = e.Message, Type = FeedbackType.Warning });
-                return new BadRequestObjectResult(new Response(feedbackItems));
+                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error });
+                return new InternalServerErrorWithResponse(response);
             }
         }
 
@@ -171,20 +212,11 @@ namespace Narato.Common.Factory
                     returnData = _exceptionHandler.PrettifyExceptions<T>(callback);
                     return new ObjectResult(new Response<IEnumerable<T>>(returnData, absolutePath));
                 }
-            //catch (ValidatorException ve)
-            //{
-            ////_logger.Error(new ErrorLogInfo(LayerEnum.FacadeApi, this.GetType().Name, ve));
-            ////_ailogger.Error("Validation didn't pass", ve);
-            ////statusCode = HttpStatusCode.BadRequest;
-            //return new Response<T>
-            //{
-            //    Feedback = new List<FeedbackItem>() { new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError } },
-            //    Self = absolutePath,
-            //    Data = returnData,
-            //    StatusCode = statusCode
-            //};
-            //feedback.Add(new FeedbackItem { StatusCode = HttpStatusCode.BadRequest, Description = ve.Message, Type = FeedbackType.ValidationError });
-            //}
+            catch (ValidationException e)
+            {
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new BadRequestObjectResult(response);
+            }
             catch (EntityNotFoundException e)
             {
                 if (! e.MessageSet)
@@ -202,19 +234,14 @@ namespace Narato.Common.Factory
             catch (ExceptionWithFeedback e)
             {
                 var response = new Response<T>(e.Feedback, absolutePath);
-                return new BadRequestObjectResult(response);
+                return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
-                {
-                    var response = new Response<IEnumerable<T>>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.ValidationError }, absolutePath);
-                    int dataCount = response.Data?.Count() ?? 0;
-                    response.Skip = 0;
-                    response.Take = dataCount;
-                    response.Total = dataCount;
-
-                    return new BadRequestObjectResult(response);
-                }
+            {
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new InternalServerErrorWithResponse(response);
             }
+        }
 
         public IActionResult CreateMissingParam(List<MissingParam> missingParams)
         {
@@ -229,6 +256,9 @@ namespace Narato.Common.Factory
                         break;
                     case MissingParamType.Body:
                         feedbackItems.Add(new FeedbackItem() { Type = FeedbackType.Error, Description = $"The request is missing a correct body ({param.Name})" });
+                        break;
+                    case MissingParamType.Header:
+                        feedbackItems.Add(new FeedbackItem() { Type = FeedbackType.Error, Description = $"The request is missing a header value for ({param.Name})" });
                         break;
                 }
             }

@@ -8,7 +8,8 @@ namespace Narato.Common.Models
     public enum MissingParamType
     {
         QuerystringParam,
-        Body
+        Body,
+        Header
     }
     public class MissingParam
     {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Narato.Common.ActionResult;
 using Narato.Common.Exceptions;
 using Narato.Common.Factory;
 using Narato.Common.Models;
@@ -30,7 +31,7 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void GetResponseReturnsBadRequestResultOnException()
+        public void GetResponseReturnsInternalServerErrorResultOnException()
         {
             Func<Response> func = () => { throw new Exception(); };
 
@@ -39,7 +40,7 @@ namespace Digipolis.FormEngine.Common.Test
             var badRequestResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
-            Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), badRequestResult);
         }
 
         [Fact]
@@ -82,7 +83,7 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void GetResponseReturnsNotFoundOnExceptionWithFeedback()
+        public void GetResponseReturnsInternalServerErrorWitResponse()
         {
             Func<Response> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
@@ -91,7 +92,7 @@ namespace Digipolis.FormEngine.Common.Test
             var badRequestResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
-            Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), badRequestResult);
         }
 
         [Fact]
@@ -121,9 +122,8 @@ namespace Digipolis.FormEngine.Common.Test
             Assert.NotNull(objectResult);
         }
 
-
         [Fact]
-        public void GetResponseForCollectionReturnsBadRequestResultOnException()
+        public void GetResponseForCollectionReturnsInternalServerErrorResultOnException()
         {
             Func<List<Response>> func = () => { throw new Exception(); };
             var exceptionHandler = new ExceptionHandler();
@@ -131,11 +131,11 @@ namespace Digipolis.FormEngine.Common.Test
             var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
-            Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), badRequestResult);
         }
 
         [Fact]
-        public void GetResponseForCollectionReturnsNotFoundOnExceptionWithFeedback()
+        public void GetResponseForCollectionReturnsInternalServerErrorWithResponse()
         {
             Func<List<Response>> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
             var exceptionHandler = new ExceptionHandler();
@@ -143,7 +143,7 @@ namespace Digipolis.FormEngine.Common.Test
             var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
-            Assert.IsType(typeof(BadRequestObjectResult), badRequestResult);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), badRequestResult);
         }
 
         [Fact]
@@ -198,7 +198,7 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void PostResponseReturnsBadRequestAtException()
+        public void PostResponseReturnsInternalServerErrorAtException()
         {
             Func<Response> func = () => { throw new Exception(); };
 
@@ -207,11 +207,11 @@ namespace Digipolis.FormEngine.Common.Test
             var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
-            Assert.IsType(typeof(BadRequestObjectResult), badRequest);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), badRequest);
         }
 
         [Fact]
-        public void PostResponseReturnsBadRequestAtExceptionWithFeedback()
+        public void PostResponseReturnsInternalServerErrorAtExceptionWithFeedback()
         {
             Func<Response> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
@@ -220,7 +220,7 @@ namespace Digipolis.FormEngine.Common.Test
             var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
-            Assert.IsType(typeof(BadRequestObjectResult), badRequest);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), badRequest);
         }
 
         [Fact]
@@ -318,7 +318,7 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void DeleteResponseReturnsBadRequestOnException()
+        public void DeleteResponseReturnsInternalServerErrorOnException()
         {
             Action action = () => { throw new Exception(); };
 
@@ -327,7 +327,7 @@ namespace Digipolis.FormEngine.Common.Test
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
-            Assert.IsType(typeof(BadRequestObjectResult), objectResult);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), objectResult);
         }
 
         [Fact]
@@ -344,7 +344,7 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
-        public void DeleteResponseReturnsBadRequestOnExceptionWithFeedback()
+        public void DeleteResponseReturnsInternalServerErrortOnExceptionWithFeedback()
         {
             Action action = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
@@ -353,7 +353,7 @@ namespace Digipolis.FormEngine.Common.Test
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
-            Assert.IsType(typeof(BadRequestObjectResult), objectResult);
+            Assert.IsType(typeof(InternalServerErrorWithResponse), objectResult);
         }
 
         [Fact]
