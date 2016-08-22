@@ -213,7 +213,7 @@ namespace Narato.Common.Factory
                 var response = new Response<IEnumerable<T>>(returnData, absolutePath);
                 response.Total = returnData.Count();
                 response.Take = returnData.Count();
-                return new ObjectResult(new Response<IEnumerable<T>>(returnData, absolutePath));
+                return new ObjectResult(response);
             }
             catch (ValidationException e)
             {
