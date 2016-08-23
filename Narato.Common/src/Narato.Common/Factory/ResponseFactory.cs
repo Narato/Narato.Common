@@ -202,18 +202,15 @@ namespace Narato.Common.Factory
             }
         }
 
-        public IActionResult CreateGetResponseForCollection<T>(Func<IEnumerable<T>> callback, string absolutePath)
+        public IActionResult CreateGetResponseForCollection<T>(Func<PagedCollectionResponse<IEnumerable<T>>> callback, string absolutePath)
         {
-            var feedback = new List<FeedbackItem>();
-            IEnumerable<T> returnData = new List<T>();
-
             try
             {
-                returnData = _exceptionHandler.PrettifyExceptions<T>(callback);
+                var returnData = _exceptionHandler.PrettifyExceptions(callback);
+
                 var response = new Response<IEnumerable<T>>(returnData, absolutePath);
-                response.Total = returnData.Count();
-                response.Take = returnData.Count();
-                return new ObjectResult(response);
+
+                return new ObjectResult(returnData);
             }
             catch (ValidationException e)
             {

@@ -112,8 +112,8 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void GetResponseForCollectionReturnsObjectResult()
         {
-            var list = new List<Response>();
-            Func< List < Response >> func = () => { return list; };
+            var list = new PagedCollectionResponse<IEnumerable<Response>>();
+            Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { return list; };
 
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
@@ -125,7 +125,7 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void GetResponseForCollectionReturnsInternalServerErrorResultOnException()
         {
-            Func<List<Response>> func = () => { throw new Exception(); };
+            Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new Exception(); };
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
             var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
@@ -137,7 +137,7 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void GetResponseForCollectionReturnsInternalServerErrorWithResponse()
         {
-            Func<List<Response>> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
+            Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
             var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
@@ -149,7 +149,7 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void GetResponseForCollectionReturnsNotFoundAtEntityNotFoundException()
         {
-            Func<List<Response>> func = () => { throw new EntityNotFoundException(); };
+            Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new EntityNotFoundException(); };
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
             var notFoundResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
@@ -161,7 +161,7 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void GetResponseForCollectionReturnsNotFoundAtEntityNotFoundExceptionWithMessage()
         {
-            Func<List<Response>> func = () => { throw new EntityNotFoundException("test"); };
+            Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new EntityNotFoundException("test"); };
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
             var notFoundResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
@@ -173,7 +173,7 @@ namespace Digipolis.FormEngine.Common.Test
         [Fact]
         public void GetResponseForCollectionReturnsUnauthorizedOnUnauthorizedAccessException()
         {
-            Func<List<Response>> func = () => { throw new UnauthorizedAccessException(); };
+            Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new UnauthorizedAccessException(); };
             var exceptionHandler = new ExceptionHandler();
             var responseFactory = new ResponseFactory(exceptionHandler);
             var unauthorizedResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);

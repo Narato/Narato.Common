@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Narato.Common.Models;
+using System;
 using System.Collections.Generic;
 
 namespace Narato.Common.Interfaces
@@ -6,6 +7,6 @@ namespace Narato.Common.Interfaces
     public interface IExceptionHandler
     {
         T PrettifyExceptions<T>(Func<T> callback);
-        IEnumerable<T> PrettifyExceptions<T>(Func<IEnumerable<T>> callback);
+        PagedCollectionResponse<IEnumerable<T>> PrettifyExceptions<T>(Func<PagedCollectionResponse<IEnumerable<T>>> callback);
     }
 }

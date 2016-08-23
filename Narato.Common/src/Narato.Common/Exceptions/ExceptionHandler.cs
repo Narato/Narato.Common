@@ -28,7 +28,7 @@ namespace Narato.Common.Exceptions
             }
         }
 
-        public IEnumerable<T> PrettifyExceptions<T>(Func<IEnumerable<T>> callback)
+        public PagedCollectionResponse<IEnumerable<T>> PrettifyExceptions<T>(Func<PagedCollectionResponse<IEnumerable<T>>> callback)
         {
             try
             {

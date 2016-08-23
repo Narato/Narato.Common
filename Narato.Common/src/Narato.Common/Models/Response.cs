@@ -1,7 +1,7 @@
 ﻿namespace Narato.Common.Models
 {
-    using System.Collections.Generic;
     using Newtonsoft.Json;
+    using System.Collections.Generic;
 
     public class Response
     {
@@ -50,6 +50,16 @@
         public Response(FeedbackItem feedbackItem, string abslutePath) : this(default(T), new List<FeedbackItem>() { feedbackItem }, abslutePath){}
 
         public Response(T data, string abslutePath) : this(data, (List<FeedbackItem>)null, abslutePath){}
+
+        public Response(PagedCollectionResponse<T> dataResponse, string absolutePath)
+        {
+            Data = dataResponse.Data;
+            Total = dataResponse.Total;
+            Skip = dataResponse.Skip;
+            Take = dataResponse.Take;
+            Feedback = null;
+            Self = absolutePath;
+        }
 
         public Response(){}
 
