@@ -8,11 +8,14 @@ using Narato.Common.Interfaces;
 using System.Net;
 using System.Reflection;
 using Narato.Common.ActionResult;
+using NLog;
 
 namespace Narato.Common.Factory
 {
     public class ResponseFactory : IResponseFactory
     {
+        private static Logger Logger = LogManager.GetCurrentClassLogger();
+
         private IExceptionHandler _exceptionHandler;
 
         public ResponseFactory(IExceptionHandler exceptionHandler)
@@ -42,11 +45,13 @@ namespace Narato.Common.Factory
             }
             catch (ValidationException e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new BadRequestObjectResult(response);
             }
             catch (EntityNotFoundException e)
             {
+                Logger.Error(e);
                 if (! e.MessageSet)
                 {
                     return new NotFoundResult();
@@ -57,15 +62,18 @@ namespace Narato.Common.Factory
             }
             catch (UnauthorizedAccessException e)
             {
+                Logger.Error(e);
                 return new UnauthorizedResult();
             }
             catch (ExceptionWithFeedback e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
@@ -95,11 +103,13 @@ namespace Narato.Common.Factory
             }
             catch (ValidationException e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new BadRequestObjectResult(response);
             }
             catch (EntityNotFoundException e)
             {
+                Logger.Error(e);
                 if (! e.MessageSet)
                 {
                     return new NotFoundResult();
@@ -110,15 +120,18 @@ namespace Narato.Common.Factory
             }
             catch (UnauthorizedAccessException e)
             {
+                Logger.Error(e);
                 return new UnauthorizedResult();
             }
             catch (ExceptionWithFeedback e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
@@ -135,11 +148,13 @@ namespace Narato.Common.Factory
             }
             catch (ValidationException e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new BadRequestObjectResult(response);
             }
             catch (EntityNotFoundException e)
             {
+                Logger.Error(e);
                 if (!e.MessageSet)
                 {
                     return new NotFoundResult();
@@ -150,15 +165,18 @@ namespace Narato.Common.Factory
             }
             catch (UnauthorizedAccessException e)
             {
+                Logger.Error(e);
                 return new UnauthorizedResult();
             }
             catch (ExceptionWithFeedback e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
@@ -172,17 +190,20 @@ namespace Narato.Common.Factory
                 callback();
                 return new NoContentResult();
             }
-            catch (UnauthorizedAccessException)   
+            catch (UnauthorizedAccessException e)   
             {
+                Logger.Error(e);
                 return new UnauthorizedResult();
             }
             catch (ValidationException e)
             {
+                Logger.Error(e);
                 var response = new Response(e.Feedback);
                 return new BadRequestObjectResult(response);
             }
             catch (EntityNotFoundException e)
             {
+                Logger.Error(e);
                 if (! e.MessageSet)
                 {
                     return new NotFoundResult();
@@ -192,11 +213,13 @@ namespace Narato.Common.Factory
             }
             catch (ExceptionWithFeedback e)
             {
+                Logger.Error(e);
                 var response = new Response(e.Feedback);
                 return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
+                Logger.Error(e);
                 var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error });
                 return new InternalServerErrorWithResponse(response);
             }
@@ -214,11 +237,13 @@ namespace Narato.Common.Factory
             }
             catch (ValidationException e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new BadRequestObjectResult(response);
             }
             catch (EntityNotFoundException e)
             {
+                Logger.Error(e);
                 if (! e.MessageSet)
                 {
                     return new NotFoundResult();
@@ -229,15 +254,18 @@ namespace Narato.Common.Factory
             }
             catch (UnauthorizedAccessException e)
             {
+                Logger.Error(e);
                 return new UnauthorizedResult();
             }
             catch (ExceptionWithFeedback e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(e.Feedback, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }
             catch (Exception e)
             {
+                Logger.Error(e);
                 var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
                 return new InternalServerErrorWithResponse(response);
             }

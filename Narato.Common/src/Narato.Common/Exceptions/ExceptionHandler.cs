@@ -1,5 +1,6 @@
 ﻿using Narato.Common.Interfaces;
 using Narato.Common.Models;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -8,6 +9,7 @@ namespace Narato.Common.Exceptions
 {
     public class ExceptionHandler : IExceptionHandler
     {
+        private static Logger Logger = LogManager.GetCurrentClassLogger();
         const string couldNotConnectToDatabse = "Could not connect to the database.";
 
         public T PrettifyExceptions<T>(Func<T> callback)
@@ -19,11 +21,13 @@ namespace Narato.Common.Exceptions
             }
             catch(SocketException ex)
             {
+                Logger.Error(ex);
                 //log the exception
                 throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
             }
             catch(Exception ex)
             {
+                Logger.Error(ex);
                 throw ex;
             }
         }
@@ -37,11 +41,12 @@ namespace Narato.Common.Exceptions
             }
             catch (SocketException ex)
             {
-                //log the exception
+                Logger.Error(ex);
                 throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 throw ex;
             }
         }
