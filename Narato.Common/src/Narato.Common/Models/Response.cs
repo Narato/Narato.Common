@@ -20,12 +20,16 @@
 
         public string Self { get; set; }
 
+        // only ignores when 0
         [JsonProperty("skip", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int Skip { get; set; }
 
+        // only ignores when 0
         [JsonProperty("take", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int Take { get; set; }
 
+        // only ignores when 0
+        [JsonProperty("total", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int Total { get; set; }
 
         public Generation Generation { get; set; }
