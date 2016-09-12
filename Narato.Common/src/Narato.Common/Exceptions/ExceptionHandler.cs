@@ -4,6 +4,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Narato.Common.Exceptions
 {
@@ -26,6 +27,26 @@ namespace Narato.Common.Exceptions
                 throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
             }
             catch(Exception ex)
+            {
+                Logger.Error(ex);
+                throw ex;
+            }
+        }
+
+        public async Task<T> PrettifyExceptionsAsync<T>(Func<Task<T>> callback)
+        {
+            try
+            {
+                var returnData = await callback();
+                return returnData;
+            }
+            catch (SocketException ex)
+            {
+                Logger.Error(ex);
+                //log the exception
+                throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
+            }
+            catch (Exception ex)
             {
                 Logger.Error(ex);
                 throw ex;
