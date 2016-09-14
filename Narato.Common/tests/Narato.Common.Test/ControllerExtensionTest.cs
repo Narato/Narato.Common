@@ -25,7 +25,6 @@ namespace Narato.Common.Test
             {
                 HttpContext = httpContext.Object
             };
-            
 
             var requestUri = controller.Object.GetRequestUri();
 
@@ -33,18 +32,15 @@ namespace Narato.Common.Test
             Assert.Equal(requestUri, "/formengine.api" + "?parameter=value");
         }
 
-
         [Fact]
         public void GetRequestUriReturnsEmptyStringOnEmptyRequest()
         {
             var controller = new Mock<Controller>();
-           
+
             var requestUri = controller.Object.GetRequestUri();
 
             Assert.NotNull(requestUri);
             Assert.Equal(requestUri, string.Empty);
         }
-
-
     }
 }

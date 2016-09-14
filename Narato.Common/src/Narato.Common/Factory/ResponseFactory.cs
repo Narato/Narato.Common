@@ -245,7 +245,6 @@ namespace Narato.Common.Factory
             }
         }
 
-
         public IActionResult CreatePutResponse<T>(Func<T> callback, string absolutePath)
         {
             var feedback = new List<FeedbackItem>();
@@ -253,6 +252,51 @@ namespace Narato.Common.Factory
             try
             {
                 var returndata = _exceptionHandler.PrettifyExceptions<T>(callback);
+                return new OkObjectResult(new Response<T>(returndata, absolutePath));
+            }
+            catch (ValidationException e)
+            {
+                Logger.Error(e);
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new BadRequestObjectResult(response);
+            }
+            catch (EntityNotFoundException e)
+            {
+                Logger.Error(e);
+                if (!e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new NotFoundObjectResult(response);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Logger.Error(e);
+                return new UnauthorizedResult();
+            }
+            catch (ExceptionWithFeedback e)
+            {
+                Logger.Error(e);
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new InternalServerErrorWithResponse(response);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new InternalServerErrorWithResponse(response);
+            }
+        }
+
+        public async Task<IActionResult> CreatePutResponseAsync<T>(Func<Task<T>> callback, string absolutePath)
+        {
+            var feedback = new List<FeedbackItem>();
+
+            try
+            {
+                var returndata = await _exceptionHandler.PrettifyExceptionsAsync<T>(callback);
                 return new OkObjectResult(new Response<T>(returndata, absolutePath));
             }
             catch (ValidationException e)
@@ -354,6 +398,52 @@ namespace Narato.Common.Factory
             {
                 Logger.Error(e);
                 if (! e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new NotFoundObjectResult(response);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Logger.Error(e);
+                return new UnauthorizedResult();
+            }
+            catch (ExceptionWithFeedback e)
+            {
+                Logger.Error(e);
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new InternalServerErrorWithResponse(response);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath);
+                return new InternalServerErrorWithResponse(response);
+            }
+        }
+
+        public async Task<IActionResult> CreateGetResponseForCollectionAsync<T>(Func<Task<PagedCollectionResponse<IEnumerable<T>>>> callback, string absolutePath)
+        {
+            try
+            {
+                var returnData = await _exceptionHandler.PrettifyExceptionsAsync(callback);
+
+                var response = new Response<IEnumerable<T>>(returnData, absolutePath);
+
+                return new ObjectResult(returnData);
+            }
+            catch (ValidationException e)
+            {
+                Logger.Error(e);
+                var response = new Response<T>(e.Feedback, absolutePath);
+                return new BadRequestObjectResult(response);
+            }
+            catch (EntityNotFoundException e)
+            {
+                Logger.Error(e);
+                if (!e.MessageSet)
                 {
                     return new NotFoundResult();
                 }
