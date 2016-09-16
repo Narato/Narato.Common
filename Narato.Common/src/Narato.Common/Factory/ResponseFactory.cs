@@ -378,6 +378,49 @@ namespace Narato.Common.Factory
             }
         }
 
+        public async Task<IActionResult> CreateDeleteResponseAsync(Func<Task> callback, string absolutePath)
+        {
+            var feedback = new List<FeedbackItem>();
+            try
+            {
+                await callback();
+                return new NoContentResult();
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Logger.Error(e);
+                return new UnauthorizedResult();
+            }
+            catch (ValidationException e)
+            {
+                Logger.Error(e);
+                var response = new Response(e.Feedback);
+                return new BadRequestObjectResult(response);
+            }
+            catch (EntityNotFoundException e)
+            {
+                Logger.Error(e);
+                if (!e.MessageSet)
+                {
+                    return new NotFoundResult();
+                }
+                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error });
+                return new NotFoundObjectResult(response);
+            }
+            catch (ExceptionWithFeedback e)
+            {
+                Logger.Error(e);
+                var response = new Response(e.Feedback);
+                return new InternalServerErrorWithResponse(response);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error });
+                return new InternalServerErrorWithResponse(response);
+            }
+        }
+
         public IActionResult CreateGetResponseForCollection<T>(Func<PagedCollectionResponse<IEnumerable<T>>> callback, string absolutePath)
         {
             try

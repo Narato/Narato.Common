@@ -15,6 +15,7 @@ namespace Narato.Common.Factory
         IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs);
         Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs);
         IActionResult CreateDeleteResponse(Action callback, string absolutePath);
+        Task<IActionResult> CreateDeleteResponseAsync(Func<Task> callback, string absolutePath);
         IActionResult CreateMissingParam(MissingParam missingParam);
         IActionResult CreateMissingParam(List<MissingParam> missingParams);
         IActionResult CreatePutResponse<T>(Func<T> callback, string absolutePath);
