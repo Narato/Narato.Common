@@ -84,7 +84,7 @@ namespace Narato.Common.Exceptions
         private void HandleException(Exception ex)
         {
             ex.AddTrackingGuid();
-            Logger.Error(ex);
+            Logger.Error(ex, ex.GetTrackingGuid().ToString());
             if (ex is SocketException)
             {
                 throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabase });
