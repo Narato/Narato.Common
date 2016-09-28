@@ -1,6 +1,7 @@
 ﻿namespace Narato.Common.Models
 {
     using Newtonsoft.Json;
+    using System;
     using System.Collections.Generic;
 
     public class Response
@@ -11,12 +12,14 @@
             Generation = new Generation();
         }
 
-        public Response(List<FeedbackItem> feedbackItems) : this()
+        public Response(List<FeedbackItem> feedbackItems, string absolutePath, int status) : this()
         {
             Feedback = feedbackItems;
+            Self = absolutePath;
+            Status = status;
         }
 
-        public Response(FeedbackItem feedbackItem) : this(new List<FeedbackItem>() { feedbackItem }) { }
+        public Response(FeedbackItem feedbackItem, string absolutePath, int status) : this(new List<FeedbackItem>() { feedbackItem }, absolutePath, status) { }
 
         public string Self { get; set; }
 
@@ -35,27 +38,36 @@
         public Generation Generation { get; set; }
 
         public List<FeedbackItem> Feedback { get; set; }
+
+        // ignore this if it's not set :-)
+        [JsonProperty("status", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int Status { get; set; } // this is the statuscode
+
+        // ignore this if it's not set :-)
+        [JsonProperty("identifier", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid Identifier { get; set; } // for tracking exceptions
     }
 
 
     public class Response<T> : Response
     {
-        public Response(T data, List<FeedbackItem> feedbackItems, string abslutePath)
+        public Response(T data, List<FeedbackItem> feedbackItems, string abslutePath, int status)
         {
             Data = data;
             Feedback = feedbackItems;
             Self = abslutePath;
+            Status = status;
         }
 
-        public Response(T data, FeedbackItem feedbackItem, string abslutePath):this(data, new List<FeedbackItem>() { feedbackItem }, abslutePath){}
+        public Response(T data, FeedbackItem feedbackItem, string abslutePath, int status):this(data, new List<FeedbackItem>() { feedbackItem }, abslutePath, status) {}
 
-        public Response(List<FeedbackItem> feedbackItems, string abslutePath) : this (default(T), feedbackItems, abslutePath){}
+        public Response(List<FeedbackItem> feedbackItems, string abslutePath, int status) : this (default(T), feedbackItems, abslutePath, status) {}
 
-        public Response(FeedbackItem feedbackItem, string abslutePath) : this(default(T), new List<FeedbackItem>() { feedbackItem }, abslutePath){}
+        public Response(FeedbackItem feedbackItem, string abslutePath, int status) : this(default(T), new List<FeedbackItem>() { feedbackItem }, abslutePath, status){}
 
-        public Response(T data, string abslutePath) : this(data, (List<FeedbackItem>)null, abslutePath){}
+        public Response(T data, string abslutePath, int status) : this(data, (List<FeedbackItem>)null, abslutePath, status){}
 
-        public Response(PagedCollectionResponse<T> dataResponse, string absolutePath)
+        public Response(PagedCollectionResponse<T> dataResponse, string absolutePath, int status)
         {
             Data = dataResponse.Data;
             Total = dataResponse.Total;
@@ -63,6 +75,7 @@
             Take = dataResponse.Take;
             Feedback = null;
             Self = absolutePath;
+            Status = status;
         }
 
         public Response(){}

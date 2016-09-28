@@ -11,7 +11,7 @@ namespace Narato.Common.Exceptions
     public class ExceptionHandler : IExceptionHandler
     {
         private static Logger Logger = LogManager.GetCurrentClassLogger();
-        const string couldNotConnectToDatabse = "Could not connect to the database.";
+        const string couldNotConnectToDatabase = "Could not connect to the database.";
 
         public T PrettifyExceptions<T>(Func<T> callback)
         {
@@ -20,16 +20,23 @@ namespace Narato.Common.Exceptions
                 var returnData = callback();
                 return returnData;
             }
-            catch(SocketException ex)
+            catch (Exception ex)
             {
-                Logger.Error(ex);
-                //log the exception
-                throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
+                HandleException(ex);
+                throw ex; // even though HandleException will alway throw an exception, we still need this line to shush the compiler
             }
-            catch(Exception ex)
+        }
+
+        public void PrettifyExceptions(Action callback)
+        {
+            try
             {
-                Logger.Error(ex);
-                throw ex;
+                callback();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+                throw ex; // even though HandleException will alway throw an exception, we still need this line to shush the compiler
             }
         }
 
@@ -40,16 +47,23 @@ namespace Narato.Common.Exceptions
                 var returnData = await callback();
                 return returnData;
             }
-            catch (SocketException ex)
+            catch (Exception ex)
             {
-                Logger.Error(ex);
-                //log the exception
-                throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
+                HandleException(ex);
+                throw ex; // even though HandleException will alway throw an exception, we still need this line to shush the compiler
+            }
+        }
+
+        public async Task PrettifyExceptionsAsync(Func<Task> callback)
+        {
+            try
+            {
+                await callback();
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
-                throw ex;
+                HandleException(ex);
+                throw ex; // even though HandleException will alway throw an exception, we still need this line to shush the compiler
             }
         }
 
@@ -60,16 +74,22 @@ namespace Narato.Common.Exceptions
                 var returnData = callback();
                 return returnData;
             }
-            catch (SocketException ex)
-            {
-                Logger.Error(ex);
-                throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabse });
-            }
             catch (Exception ex)
             {
-                Logger.Error(ex);
-                throw ex;
+                HandleException(ex);
+                throw ex; // even though HandleException will alway throw an exception, we still need this line to shush the compiler
             }
+        }
+
+        private void HandleException(Exception ex)
+        {
+            ex.AddTrackingGuid();
+            Logger.Error(ex);
+            if (ex is SocketException)
+            {
+                throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabase });
+            }
+            throw ex;
         }
     }
 }

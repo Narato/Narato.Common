@@ -191,10 +191,10 @@ namespace Digipolis.FormEngine.Common.Test
 
             var responseFactory = new ResponseFactory(exceptionHandler);
 
-            var createdAtRouteReesult = responseFactory.CreatePostResponse(func , string.Empty, string.Empty, string.Empty);
+            var createdAtRouteResult = responseFactory.CreatePostResponse(func , string.Empty, string.Empty, string.Empty);
 
-            Assert.NotNull(createdAtRouteReesult);
-            Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteReesult);
+            Assert.NotNull(createdAtRouteResult);
+            Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteResult);
         }
 
         [Fact]
