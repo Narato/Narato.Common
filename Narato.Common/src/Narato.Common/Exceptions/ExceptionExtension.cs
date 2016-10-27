@@ -17,7 +17,7 @@ namespace Narato.Common.Exceptions
         {
             if (! e.Data.Contains(TRACKING_GUID_NAME))
             {
-                // Tempted to throw an exception here... but that would also be kinda weird, so we'll just return an empty guid
+                // Tempted to throw an exception here... but that would be kinda weird (and meta), so we'll just return an empty guid
                 return Guid.Empty;
             }
             return (Guid)e.Data[TRACKING_GUID_NAME];

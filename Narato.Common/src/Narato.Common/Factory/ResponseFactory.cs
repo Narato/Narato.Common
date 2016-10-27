@@ -1,13 +1,9 @@
 ﻿using Narato.Common.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Narato.Common.Exceptions;
 using Narato.Common.Interfaces;
-using System.Net;
 using System.Reflection;
-using Narato.Common.ActionResult;
 using NLog;
 using System.Threading.Tasks;
 
@@ -15,23 +11,16 @@ namespace Narato.Common.Factory
 {
     public class ResponseFactory : IResponseFactory
     {
-        private static Logger Logger = LogManager.GetCurrentClassLogger();
+        protected static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private IExceptionHandler _exceptionHandler;
+        protected IExceptionHandler _exceptionHandler;
+        protected IExceptionToActionResultMapper _exceptionMapper;
 
-        public ResponseFactory(IExceptionHandler exceptionHandler)
+        public ResponseFactory(IExceptionHandler exceptionHandler, IExceptionToActionResultMapper exceptionMapper)
         {
             _exceptionHandler = exceptionHandler;
+            _exceptionMapper = exceptionMapper;
         }
-        //private string GetInnerMostMessage(Exception e)
-        //{
-        //    if (e.InnerException == null)
-        //    {
-        //        return e.Message;
-        //    }
-        //    return GetInnerMostMessage(e.InnerException);
-        //}
-
 
         public IActionResult CreateGetResponse<T>(Func<T> callback, string absolutePath)
         {
@@ -45,43 +34,9 @@ namespace Narato.Common.Factory
                     return new ObjectResult(new Response<T>(returnData, absolutePath, 200));
                 return new NotFoundObjectResult(new Response<T>(new FeedbackItem() { Description = "The object was not found", Type = FeedbackType.Info }, absolutePath, 404));
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (!e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
         
@@ -97,43 +52,9 @@ namespace Narato.Common.Factory
                     return new ObjectResult(new Response<T>(returnData, absolutePath, 200));
                 return new NotFoundObjectResult(new Response<T>(new FeedbackItem() { Description = "The object was not found", Type = FeedbackType.Info }, absolutePath, 404));
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (! e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(returnData, new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -159,43 +80,9 @@ namespace Narato.Common.Factory
 
                 return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (! e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -221,43 +108,9 @@ namespace Narato.Common.Factory
 
                 return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (!e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -270,43 +123,9 @@ namespace Narato.Common.Factory
                 var returndata = _exceptionHandler.PrettifyExceptions<T>(callback);
                 return new OkObjectResult(new Response<T>(returndata, absolutePath, 200));
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (!e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -319,43 +138,9 @@ namespace Narato.Common.Factory
                 var returndata = await _exceptionHandler.PrettifyExceptionsAsync<T>(callback);
                 return new OkObjectResult(new Response<T>(returndata, absolutePath, 200));
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (!e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -367,42 +152,9 @@ namespace Narato.Common.Factory
                 _exceptionHandler.PrettifyExceptions(callback);
                 return new NoContentResult();
             }
-            catch (UnauthorizedAccessException e)   
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ValidationException e)
-            {
-                Logger.Error(e);
-                var response = new Response(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (! e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<bool>(e, absolutePath);
             }
         }
 
@@ -414,42 +166,9 @@ namespace Narato.Common.Factory
                 await _exceptionHandler.PrettifyExceptionsAsync(callback);
                 return new NoContentResult();
             }
-            catch (UnauthorizedAccessException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ValidationException e)
-            {
-                Logger.Error(e);
-                var response = new Response(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (!e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<bool>(e, absolutePath);
             }
         }
 
@@ -463,43 +182,9 @@ namespace Narato.Common.Factory
 
                 return new ObjectResult(returnData);
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (! e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -513,43 +198,9 @@ namespace Narato.Common.Factory
 
                 return new ObjectResult(returnData);
             }
-            catch (ValidationException e)
-            {
+            catch (Exception e) {
                 Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 400);
-                response.Identifier = e.GetTrackingGuid();
-                return new BadRequestObjectResult(response);
-            }
-            catch (EntityNotFoundException e)
-            {
-                Logger.Error(e);
-                if (!e.MessageSet)
-                {
-                    return new NotFoundResult();
-                }
-
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 404);
-                response.Identifier = e.GetTrackingGuid();
-                return new NotFoundObjectResult(response);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Logger.Error(e);
-                return new UnauthorizedResult();
-            }
-            catch (ExceptionWithFeedback e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(e.Feedback, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                var response = new Response<T>(new FeedbackItem { Description = e.Message, Type = FeedbackType.Error }, absolutePath, 500);
-                response.Identifier = e.GetTrackingGuid();
-                return new InternalServerErrorWithResponse(response);
+                return _exceptionMapper.Map<T>(e, absolutePath);
             }
         }
 
@@ -581,7 +232,5 @@ namespace Narato.Common.Factory
         {
             return CreateMissingParam(new List<MissingParam> { missingParam });
         }
-
-       
     }
 }

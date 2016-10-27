@@ -89,6 +89,14 @@ namespace Narato.Common.Exceptions
             {
                 throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabase });
             }
+            if (ex is UnauthorizedAccessException) // this was wrong (mis)use of a system exception. Due to legacy code, we just rethrow it in the correct format
+            {
+                if (string.IsNullOrEmpty(ex.Message))
+                {
+                    throw new UnauthorizedException();
+                }
+                throw new UnauthorizedException(ex.Message);
+            }
             throw ex;
         }
     }

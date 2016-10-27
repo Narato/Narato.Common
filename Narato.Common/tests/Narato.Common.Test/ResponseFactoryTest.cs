@@ -3,6 +3,7 @@ using Moq;
 using Narato.Common.ActionResult;
 using Narato.Common.Exceptions;
 using Narato.Common.Factory;
+using Narato.Common.Mappers;
 using Narato.Common.Models;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,8 @@ namespace Digipolis.FormEngine.Common.Test
 
             var exceptionHandler = new ExceptionHandler();
 
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
 
             var objectResult = responseFactory.CreateGetResponse(func, string.Empty);
 
@@ -36,7 +38,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new Exception(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequestResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
@@ -49,7 +52,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new UnauthorizedAccessException(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var unauthorizedResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(unauthorizedResult);
@@ -62,7 +66,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new EntityNotFoundException(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var notFoundResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(notFoundResult);
@@ -75,7 +80,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new EntityNotFoundException("test"); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var notFoundResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(notFoundResult);
@@ -88,7 +94,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequestResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
@@ -102,7 +109,8 @@ namespace Digipolis.FormEngine.Common.Test
 
             var exceptionHandler = new ExceptionHandler();
 
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var notFoundResult = responseFactory.CreateGetResponse(func, string.Empty);
 
             Assert.NotNull(notFoundResult);
@@ -116,7 +124,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { return list; };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(objectResult);
@@ -127,7 +136,8 @@ namespace Digipolis.FormEngine.Common.Test
         {
             Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new Exception(); };
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
@@ -139,7 +149,8 @@ namespace Digipolis.FormEngine.Common.Test
         {
             Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequestResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(badRequestResult);
@@ -151,7 +162,8 @@ namespace Digipolis.FormEngine.Common.Test
         {
             Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new EntityNotFoundException(); };
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var notFoundResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(notFoundResult);
@@ -163,7 +175,8 @@ namespace Digipolis.FormEngine.Common.Test
         {
             Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new EntityNotFoundException("test"); };
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var notFoundResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(notFoundResult);
@@ -175,7 +188,8 @@ namespace Digipolis.FormEngine.Common.Test
         {
             Func<PagedCollectionResponse<IEnumerable<Response>>> func = () => { throw new UnauthorizedAccessException(); };
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var unauthorizedResult = responseFactory.CreateGetResponseForCollection(func, string.Empty);
 
             Assert.NotNull(unauthorizedResult);
@@ -189,9 +203,10 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { return It.IsAny<Response>(); };
             var exceptionHandler = new ExceptionHandler();
 
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
 
-            var createdAtRouteResult = responseFactory.CreatePostResponse(func , string.Empty, string.Empty, string.Empty);
+            var createdAtRouteResult = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(createdAtRouteResult);
             Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteResult);
@@ -203,7 +218,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new Exception(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
@@ -216,7 +232,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
@@ -229,7 +246,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new EntityNotFoundException(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
@@ -242,7 +260,8 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new EntityNotFoundException("test"); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(badRequest);
@@ -255,8 +274,9 @@ namespace Digipolis.FormEngine.Common.Test
             Func<Response> func = () => { throw new UnauthorizedAccessException(); };
             var exceptionHandler = new ExceptionHandler();
 
-            var responseFactory = new ResponseFactory(exceptionHandler);
-            var unauthorized = responseFactory.CreatePostResponse(func , string.Empty, string.Empty, string.Empty);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
+            var unauthorized = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
 
             Assert.NotNull(unauthorized);
             Assert.IsType(typeof(UnauthorizedResult), unauthorized);
@@ -266,7 +286,8 @@ namespace Digipolis.FormEngine.Common.Test
         public void MissingQueryStringParameterReturnsBadRequest()
         {
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
 
             var badRequest = responseFactory.CreateMissingParam(new MissingParam("missing", MissingParamType.QuerystringParam));
 
@@ -278,7 +299,8 @@ namespace Digipolis.FormEngine.Common.Test
         public void MissingBodyParameterReturnsBadRequest()
         {
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequest = responseFactory.CreateMissingParam(new MissingParam("missing", MissingParamType.Body));
 
             Assert.NotNull(badRequest);
@@ -289,7 +311,8 @@ namespace Digipolis.FormEngine.Common.Test
         public void MissingParametersReturnsBadRequest()
         {
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var badRequest = responseFactory.CreateMissingParam(new List<MissingParam>() { new MissingParam("missing", MissingParamType.QuerystringParam) });
 
             Assert.NotNull(badRequest);
@@ -310,7 +333,8 @@ namespace Digipolis.FormEngine.Common.Test
             Action action = () => { };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
@@ -323,7 +347,8 @@ namespace Digipolis.FormEngine.Common.Test
             Action action = () => { throw new Exception(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
@@ -336,7 +361,8 @@ namespace Digipolis.FormEngine.Common.Test
             Action action = () => { throw new UnauthorizedAccessException(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
@@ -349,7 +375,8 @@ namespace Digipolis.FormEngine.Common.Test
             Action action = () => { throw new ExceptionWithFeedback(new FeedbackItem()); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
@@ -362,7 +389,8 @@ namespace Digipolis.FormEngine.Common.Test
             Action action = () => { throw new EntityNotFoundException(); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
@@ -375,7 +403,8 @@ namespace Digipolis.FormEngine.Common.Test
             Action action = () => { throw new EntityNotFoundException("test"); };
 
             var exceptionHandler = new ExceptionHandler();
-            var responseFactory = new ResponseFactory(exceptionHandler);
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
             var objectResult = responseFactory.CreateDeleteResponse(action, string.Empty);
 
             Assert.NotNull(objectResult);
