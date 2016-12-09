@@ -1,7 +1,5 @@
-﻿using System.Net;
-
-namespace Narato.Common.Models
-{ 
+﻿namespace Narato.Common.Models
+{
     public class FeedbackItem
     {
         public FeedbackType Type { get; set; }

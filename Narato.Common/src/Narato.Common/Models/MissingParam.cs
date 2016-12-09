@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Narato.Common.Models
+﻿namespace Narato.Common.Models
 {
     public enum MissingParamType
     {

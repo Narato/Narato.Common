@@ -7,7 +7,6 @@ using Narato.Common.Mappers;
 using Narato.Common.Models;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using Xunit;
 
 namespace Digipolis.FormEngine.Common.Test
