@@ -66,7 +66,7 @@ namespace Narato.Common.Factory
             {
                 var returndata = _exceptionHandler.PrettifyExceptions<T>(callback);
 
-                if (routeValueIdentifierPairs != null)
+                if (!string.IsNullOrEmpty(routeName) && routeValueIdentifierPairs != null && routeValues != null)
                 {
                     routeValueIdentifierPairs.ForEach(x =>
                     {
@@ -76,14 +76,22 @@ namespace Narato.Common.Factory
                         var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
                         routePropertyInfo.SetValue(routeValues, modelIdentiefer);
                     });
+
+                    return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
                 }
 
-                return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
+                return new ObjectResult(new Response<T>(returndata, absolutePath, 201));
+                
             }
             catch (Exception e) {
                 Logger.Error(e);
                 return _exceptionMapper.Map<T>(e, absolutePath);
             }
+        }
+
+        public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath)
+        {
+            return CreatePostResponse(callback, absolutePath, string.Empty, string.Empty, null);
         }
 
         public async Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs = null)
@@ -94,7 +102,7 @@ namespace Narato.Common.Factory
             {
                 var returndata = await _exceptionHandler.PrettifyExceptionsAsync<T>(callback);
 
-                if (routeValueIdentifierPairs != null)
+                if (!string.IsNullOrEmpty(routeName) && routeValueIdentifierPairs != null && routeValues != null)
                 {
                     routeValueIdentifierPairs.ForEach(x =>
                     {
@@ -104,14 +112,21 @@ namespace Narato.Common.Factory
                         var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
                         routePropertyInfo.SetValue(routeValues, modelIdentiefer);
                     });
+
+                    return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
                 }
 
-                return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
+                return new ObjectResult(new Response<T>(returndata, absolutePath, 201));
             }
             catch (Exception e) {
                 Logger.Error(e);
                 return _exceptionMapper.Map<T>(e, absolutePath);
             }
+        }
+
+        public async Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath)
+        {
+            return await CreatePostResponseAsync(callback, absolutePath, string.Empty, string.Empty, null);
         }
 
         public IActionResult CreatePutResponse<T>(Func<T> callback, string absolutePath)

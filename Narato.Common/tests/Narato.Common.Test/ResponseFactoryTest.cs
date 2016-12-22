@@ -195,8 +195,35 @@ namespace Digipolis.FormEngine.Common.Test
             Assert.IsType(typeof(UnauthorizedResult), unauthorizedResult);
         }
 
+        public class TestObject
+        {
+            public int Id { get; set; }
+        }
+
+        public class TestRouteValues
+        {
+            public string Controller { get; set; }
+            public int Id { get; set; }
+        }
+
         [Fact]
         public void PostResponseReturnsCreatedAtRouteResult()
+        {
+            var response = It.IsAny<Response>();
+            Func<TestObject> func = () => { return new TestObject(); };
+            var exceptionHandler = new ExceptionHandler();
+
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
+
+            var createdAtRouteResult = responseFactory.CreatePostResponse(func, string.Empty, "CreatedAtRoute", new TestRouteValues { Controller = "TestController", Id = 1}, new List<RouteValuesIdentifierPair> { new RouteValuesIdentifierPair { ModelIdentifier = "Id", RouteValuesIdentifier = "Id" } });
+
+            Assert.NotNull(createdAtRouteResult);
+            Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteResult);
+        }
+
+        [Fact]
+        public void PostResponseReturnsObjectResultWithCode201()
         {
             var response = It.IsAny<Response>();
             Func<Response> func = () => { return It.IsAny<Response>(); };
@@ -205,10 +232,13 @@ namespace Digipolis.FormEngine.Common.Test
             var exceptionMapper = new ExceptionToActionResultMapper();
             var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
 
-            var createdAtRouteResult = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+            var objectResult = responseFactory.CreatePostResponse(func, string.Empty);
 
-            Assert.NotNull(createdAtRouteResult);
-            Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteResult);
+            Assert.NotNull(objectResult);
+            Assert.IsType(typeof(ObjectResult), objectResult);
+            Assert.IsType(typeof(Response<Response>), ((ObjectResult)objectResult).Value);
+
+            Assert.Equal(((Response<Response>)((ObjectResult)objectResult).Value).Status, 201);
         }
 
         [Fact]
@@ -219,11 +249,12 @@ namespace Digipolis.FormEngine.Common.Test
             var exceptionHandler = new ExceptionHandler();
             var exceptionMapper = new ExceptionToActionResultMapper();
             var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
-            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty);
 
             Assert.NotNull(badRequest);
             Assert.IsType(typeof(InternalServerErrorWithResponse), badRequest);
         }
+
 
         [Fact]
         public void PostResponseReturnsInternalServerErrorAtExceptionWithFeedback()
@@ -233,7 +264,7 @@ namespace Digipolis.FormEngine.Common.Test
             var exceptionHandler = new ExceptionHandler();
             var exceptionMapper = new ExceptionToActionResultMapper();
             var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
-            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty);
 
             Assert.NotNull(badRequest);
             Assert.IsType(typeof(InternalServerErrorWithResponse), badRequest);
@@ -247,7 +278,7 @@ namespace Digipolis.FormEngine.Common.Test
             var exceptionHandler = new ExceptionHandler();
             var exceptionMapper = new ExceptionToActionResultMapper();
             var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
-            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty);
 
             Assert.NotNull(badRequest);
             Assert.IsType(typeof(NotFoundResult), badRequest);
@@ -261,7 +292,7 @@ namespace Digipolis.FormEngine.Common.Test
             var exceptionHandler = new ExceptionHandler();
             var exceptionMapper = new ExceptionToActionResultMapper();
             var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
-            var badRequest = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+            var badRequest = responseFactory.CreatePostResponse(func, string.Empty);
 
             Assert.NotNull(badRequest);
             Assert.IsType(typeof(NotFoundObjectResult), badRequest);
@@ -275,7 +306,7 @@ namespace Digipolis.FormEngine.Common.Test
 
             var exceptionMapper = new ExceptionToActionResultMapper();
             var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
-            var unauthorized = responseFactory.CreatePostResponse(func, string.Empty, string.Empty, string.Empty);
+            var unauthorized = responseFactory.CreatePostResponse(func, string.Empty);
 
             Assert.NotNull(unauthorized);
             Assert.IsType(typeof(UnauthorizedResult), unauthorized);
