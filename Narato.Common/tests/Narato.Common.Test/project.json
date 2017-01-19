@@ -12,7 +12,7 @@
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "xunit.runner.console": "2.2.0-beta1-build3239",
     "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0",
-    "Narato.Common": "2.0.6"
+    "Narato.Common": "2.1.0"
   },
   "frameworks": {
     "netcoreapp1.0": {
