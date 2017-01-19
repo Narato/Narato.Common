@@ -58,7 +58,31 @@ namespace Narato.Common.Factory
             }
         }
 
+        [Obsolete("Use CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null) instead")]
         public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs = null)
+        {
+            if (!string.IsNullOrEmpty(routeName) && routeValueIdentifierPairs != null && routeValues != null)
+            {
+                Func<T, object> routeMapping = returndata => {
+                    routeValueIdentifierPairs.ForEach(x =>
+                    {
+                        var propertyInfo = returndata.GetType().GetProperty(x.ModelIdentifier);
+                        var modelIdentifier = propertyInfo.GetValue(returndata);
+
+                        var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
+                        routePropertyInfo.SetValue(routeValues, modelIdentifier);
+                    });
+                    return routeValues;   
+                };
+                return CreatePostResponse(callback, absolutePath, routeName, routeMapping);
+            }
+            else
+            {
+                return CreatePostResponse(callback, absolutePath);
+            }
+        }
+
+        public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null)
         {
             var feedback = new List<FeedbackItem>();
 
@@ -66,22 +90,14 @@ namespace Narato.Common.Factory
             {
                 var returndata = _exceptionHandler.PrettifyExceptions<T>(callback);
 
-                if (!string.IsNullOrEmpty(routeName) && routeValueIdentifierPairs != null && routeValues != null)
+                if (!string.IsNullOrEmpty(routeName) && routeValueMapping != null)
                 {
-                    routeValueIdentifierPairs.ForEach(x =>
-                    {
-                        var propertyInfo = returndata.GetType().GetProperty(x.ModelIdentifier);
-                        var modelIdentiefer = propertyInfo.GetValue(returndata);
-
-                        var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
-                        routePropertyInfo.SetValue(routeValues, modelIdentiefer);
-                    });
+                    var routeValues = routeValueMapping(returndata);
 
                     return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
                 }
 
-                return new ObjectResult(new Response<T>(returndata, absolutePath, 201));
-                
+                return new ObjectResult(new Response<T>(returndata, absolutePath, 201));               
             }
             catch (Exception e) {
                 Logger.Error(e);
@@ -91,10 +107,34 @@ namespace Narato.Common.Factory
 
         public IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath)
         {
-            return CreatePostResponse(callback, absolutePath, string.Empty, string.Empty, null);
+            return CreatePostResponse(callback, absolutePath, string.Empty);
         }
 
+        [Obsolete("Use CreatePostResponseAsync<T>(Func<T> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null) instead")]
         public async Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs = null)
+        {
+            if (!string.IsNullOrEmpty(routeName) && routeValueIdentifierPairs != null && routeValues != null)
+            {
+                Func<Task<T>, object> routeMapping = returndata => {
+                    routeValueIdentifierPairs.ForEach(x =>
+                    {
+                        var propertyInfo = returndata.GetType().GetProperty(x.ModelIdentifier);
+                        var modelIdentifier = propertyInfo.GetValue(returndata);
+
+                        var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
+                        routePropertyInfo.SetValue(routeValues, modelIdentifier);
+                    });
+                    return routeValues;   
+                };
+                return await CreatePostResponseAsync(callback, absolutePath, routeName, routeMapping);
+            }
+            else
+            {
+                return await CreatePostResponseAsync(callback, absolutePath);
+            }
+        }
+
+        public async Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null)
         {
             var feedback = new List<FeedbackItem>();
 
@@ -102,16 +142,9 @@ namespace Narato.Common.Factory
             {
                 var returndata = await _exceptionHandler.PrettifyExceptionsAsync<T>(callback);
 
-                if (!string.IsNullOrEmpty(routeName) && routeValueIdentifierPairs != null && routeValues != null)
+                if (!string.IsNullOrEmpty(routeName) && routeValueMapping != null)
                 {
-                    routeValueIdentifierPairs.ForEach(x =>
-                    {
-                        var propertyInfo = returndata.GetType().GetProperty(x.ModelIdentifier);
-                        var modelIdentiefer = propertyInfo.GetValue(returndata);
-
-                        var routePropertyInfo = routeValues.GetType().GetProperty(x.RouteValuesIdentifier);
-                        routePropertyInfo.SetValue(routeValues, modelIdentiefer);
-                    });
+                    var routeValues = routeValueMapping(returndata);
 
                     return new CreatedAtRouteResult(routeName, routeValues, new Response<T>(returndata, absolutePath, 201));
                 }
@@ -126,7 +159,7 @@ namespace Narato.Common.Factory
 
         public async Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath)
         {
-            return await CreatePostResponseAsync(callback, absolutePath, string.Empty, string.Empty, null);
+            return await CreatePostResponseAsync(callback, absolutePath, string.Empty);
         }
 
         public IActionResult CreatePutResponse<T>(Func<T> callback, string absolutePath)

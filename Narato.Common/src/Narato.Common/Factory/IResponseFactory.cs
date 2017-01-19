@@ -12,9 +12,13 @@ namespace Narato.Common.Factory
         Task<IActionResult> CreateGetResponseAsync<T>(Func<Task<T>> callback, string absolutePath);
         IActionResult CreateGetResponseForCollection<T>(Func<PagedCollectionResponse<IEnumerable<T>>> callback, string absolutePath);
         Task<IActionResult> CreateGetResponseForCollectionAsync<T>(Func<Task<PagedCollectionResponse<IEnumerable<T>>>> callback, string absolutePath);
+        [Obsolete("Use CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null) instead")]
         IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs);
+        IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null);
         IActionResult CreatePostResponse<T>(Func<T> callback, string absolutePath);
+        [Obsolete("Use CreatePostResponseAsync<T>(Func<T> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null) instead")]
         Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath, string routeName, object routeValues, List<RouteValuesIdentifierPair> routeValueIdentifierPairs);
+        Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath, string routeName, Func<T, object> routeValueMapping = null);
         Task<IActionResult> CreatePostResponseAsync<T>(Func<Task<T>> callback, string absolutePath);
         IActionResult CreateDeleteResponse(Action callback, string absolutePath);
         Task<IActionResult> CreateDeleteResponseAsync(Func<Task> callback, string absolutePath);

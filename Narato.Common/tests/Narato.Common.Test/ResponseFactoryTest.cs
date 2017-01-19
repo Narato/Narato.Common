@@ -223,6 +223,24 @@ namespace Digipolis.FormEngine.Common.Test
         }
 
         [Fact]
+        public void PostResponseWithMapperReturnsCreatedAtRouteResult()
+        {
+            var response = It.IsAny<Response>();
+            Func<TestObject> func = () => { return new TestObject(); };
+            var exceptionHandler = new ExceptionHandler();
+
+            var exceptionMapper = new ExceptionToActionResultMapper();
+            var responseFactory = new ResponseFactory(exceptionHandler, exceptionMapper);
+
+            Func<TestObject, TestRouteValues> mapper = (data) => { return new TestRouteValues { Controller = "TestController", Id = 1}; };
+
+            var createdAtRouteResult = responseFactory.CreatePostResponse(func, string.Empty, "CreatedAtRoute", mapper);
+
+            Assert.NotNull(createdAtRouteResult);
+            Assert.IsType(typeof(CreatedAtRouteResult), createdAtRouteResult);
+        }        
+
+        [Fact]
         public void PostResponseReturnsObjectResultWithCode201()
         {
             var response = It.IsAny<Response>();
