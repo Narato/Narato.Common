@@ -83,6 +83,10 @@ namespace Narato.Common.Exceptions
 
         private void HandleException(Exception ex)
         {
+            if (ex is AggregateException && ex.InnerException != null) // Exception was thrown in an async task, which was Resulted. Those are wrapped in an AggregateException
+            {
+                ex = ex.InnerException;
+            }
             ex.AddTrackingGuid();
             Logger.Error(ex, ex.GetTrackingGuid().ToString());
             if (ex is SocketException)
