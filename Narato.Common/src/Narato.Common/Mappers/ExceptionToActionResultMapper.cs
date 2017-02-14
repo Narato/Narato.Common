@@ -50,8 +50,14 @@ namespace Narato.Common.Mappers
                 return new InternalServerErrorWithResponse(response);
             }
 
+            var message = "Something went wrong. Contact support and give them the identifier found below.";
+            // if development ==> expose exception message
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").ToLower().Equals("development"))
+            {
+                message = ex.Message;
+            }
             // catch all (just Exception)
-            var catchAllResponse = new Response<T>(new FeedbackItem { Description = ex.Message, Type = FeedbackType.Error }, absolutePath, 500);
+            var catchAllResponse = new Response<T>(new FeedbackItem { Description = message, Type = FeedbackType.Error }, absolutePath, 500);
             catchAllResponse.Identifier = ex.GetTrackingGuid();
             return new InternalServerErrorWithResponse(catchAllResponse);
         }
