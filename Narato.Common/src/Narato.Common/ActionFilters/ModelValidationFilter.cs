@@ -23,10 +23,13 @@ namespace Narato.Common.ActionFilters
             {
                 foreach (var error in modelstateItem.Value.Errors)
                 {
+                    var errorMessage = error.ErrorMessage;
+                    if (string.IsNullOrEmpty(errorMessage))
+                        errorMessage = error.Exception.Message;
                     response.Feedback.Add(new FeedbackItem
                     {
                         Type = FeedbackType.Error,
-                        Description = $"{modelstateItem.Key}: {error.ErrorMessage}"
+                        Description = $"{modelstateItem.Key}: {errorMessage}"
                     });
                 }
             }
