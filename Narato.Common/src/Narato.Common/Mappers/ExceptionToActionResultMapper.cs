@@ -52,7 +52,7 @@ namespace Narato.Common.Mappers
 
             var message = "Something went wrong. Contact support and give them the identifier found below.";
             // if development ==> expose exception message
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").ToLower().Equals("development"))
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != null && Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").ToLower().Equals("development"))
             {
                 message = ex.Message;
             }
