@@ -42,10 +42,6 @@
         // ignore this if it's not set :-)
         [JsonProperty("status", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int Status { get; set; } // this is the statuscode
-
-        // ignore this if it's not set :-)
-        [JsonProperty("identifier", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Guid Identifier { get; set; } // for tracking exceptions
     }
 
 

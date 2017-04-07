@@ -228,7 +228,7 @@ namespace Narato.Common.Factory
 
                 var response = new Response<IEnumerable<T>>(returnData, absolutePath, 200);
 
-                return new ObjectResult(returnData);
+                return new ObjectResult(response);
             }
             catch (Exception e) {
                 Logger.Error(e);
@@ -244,7 +244,7 @@ namespace Narato.Common.Factory
 
                 var response = new Response<IEnumerable<T>>(returnData, absolutePath, 200);
 
-                return new ObjectResult(returnData);
+                return new ObjectResult(response);
             }
             catch (Exception e) {
                 Logger.Error(e);
