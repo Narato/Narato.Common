@@ -9,12 +9,12 @@ namespace Narato.Common.Mappers
 {
     public class ExceptionToActionResultMapper : IExceptionToActionResultMapper
     {
-        public IActionResult Map<T>(Exception ex, string absolutePath)
+        public IActionResult Map(Exception ex, string absolutePath)
         {
             if (ex is ValidationException)
             {
                 var typedEx = ex as ValidationException;
-                var response = new ErrorResponse<T>(typedEx.Feedback, absolutePath, 400);
+                var response = new ErrorResponse(typedEx.Feedback, absolutePath, 400);
                 response.Identifier = typedEx.GetTrackingGuid();
                 response.Title = "Validation failed.";
                 return new BadRequestObjectResult(response);
@@ -28,7 +28,7 @@ namespace Narato.Common.Mappers
                     return new NotFoundResult();
                 }
 
-                var response = new ErrorResponse<T>(new FeedbackItem { Description = typedEx.Message, Type = FeedbackType.Error }, absolutePath, 404);
+                var response = new ErrorResponse(new FeedbackItem { Description = typedEx.Message, Type = FeedbackType.Error }, absolutePath, 404);
                 response.Identifier = typedEx.GetTrackingGuid();
                 response.Title = "Entity could not be found.";
                 return new NotFoundObjectResult(response);
@@ -47,7 +47,7 @@ namespace Narato.Common.Mappers
             if (ex is ExceptionWithFeedback)
             {
                 var typedEx = ex as ExceptionWithFeedback;
-                var response = new ErrorResponse<T>(typedEx.Feedback, absolutePath, 500);
+                var response = new ErrorResponse(typedEx.Feedback, absolutePath, 500);
                 response.Identifier = typedEx.GetTrackingGuid();
                 response.Title = "Unexpected internal server error.";
                 return new InternalServerErrorWithResponse(response);
@@ -60,7 +60,7 @@ namespace Narato.Common.Mappers
                 message = ex.Message;
             }
             // catch all (just Exception)
-            var catchAllResponse = new ErrorResponse<T>(new FeedbackItem { Description = message, Type = FeedbackType.Error }, absolutePath, 500);
+            var catchAllResponse = new ErrorResponse(new FeedbackItem { Description = message, Type = FeedbackType.Error }, absolutePath, 500);
             catchAllResponse.Identifier = ex.GetTrackingGuid();
             catchAllResponse.Title = "Unexpected internal server error.";
             return new InternalServerErrorWithResponse(catchAllResponse);

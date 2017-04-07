@@ -36,7 +36,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
         
@@ -54,7 +54,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -153,7 +153,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -173,7 +173,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -188,7 +188,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -202,7 +202,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<bool>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -216,7 +216,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<bool>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -232,7 +232,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 
@@ -248,7 +248,7 @@ namespace Narato.Common.Factory
             }
             catch (Exception e) {
                 Logger.Error(e);
-                return _exceptionMapper.Map<T>(e, absolutePath);
+                return _exceptionMapper.Map(e, absolutePath);
             }
         }
 

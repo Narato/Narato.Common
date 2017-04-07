@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Narato.Common.Models
 {
-    public class ErrorResponse<T> : Response<T>
+    public class ErrorResponse : Response
     {
         // ignore this if it's not set :-)
         [JsonProperty("identifier", DefaultValueHandling = DefaultValueHandling.Ignore)]
