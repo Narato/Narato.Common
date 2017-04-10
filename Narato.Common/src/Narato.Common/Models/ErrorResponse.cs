@@ -10,6 +10,7 @@ namespace Narato.Common.Models
         [JsonProperty("identifier", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public Guid Identifier { get; set; } // for tracking exceptions
 
+        [JsonProperty("title")]
         public string Title { get; set; }
 
         public ErrorResponse(List<FeedbackItem> feedbackItems, string abslutePath, int status) : base (feedbackItems, abslutePath, status) { }
