@@ -87,20 +87,21 @@ namespace Narato.Common.Exceptions
             {
                 ex = ex.InnerException;
             }
-            ex.AddTrackingGuid();
-            Logger.Error(ex, ex.GetTrackingGuid().ToString());
             if (ex is SocketException)
             {
-                throw new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabase });
+                ex = new ExceptionWithFeedback(new FeedbackItem() { Description = couldNotConnectToDatabase });
             }
             if (ex is UnauthorizedAccessException) // this was wrong (mis)use of a system exception. Due to legacy code, we just rethrow it in the correct format
             {
                 if (string.IsNullOrEmpty(ex.Message))
                 {
-                    throw new UnauthorizedException();
+                    ex = new UnauthorizedException();
                 }
-                throw new UnauthorizedException(ex.Message);
+                ex = new UnauthorizedException(ex.Message);
             }
+
+            ex.AddTrackingGuid();
+            Logger.Error(ex, ex.GetTrackingGuid().ToString());
             throw ex;
         }
     }
