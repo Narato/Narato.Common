@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PackageVersion>3.0.0</PackageVersion>
+    <Authors>Narato - http://www.narato.be</Authors>
+    <Description>"Narato - http://www.narato.be"</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>Upgraded to .net Core 2.0</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
